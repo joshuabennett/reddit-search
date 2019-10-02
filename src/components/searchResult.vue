@@ -1,21 +1,18 @@
 <template>
     <div class="container box is-primary">
         <div class="post-title">Reddit Post Title</div>
-        <hr>
         <div class="post-content">Lorem ipsum dolor sit, amet consectetur adipisicing elit. Nobis inventore magni aspernatur natus expedita culpa qui, exercitationem doloremque nemo optio asperiores sapiente consectetur sunt commodi in delectus velit alias praesentium!</div>
-        <hr>
         <div class="comment-container">
-            <div class="upvotes">100</div>
+            <div class="upvotes has-text-centered">100</div>
             <div class="post-top-comment">Lorem ipsum dolor sit amet consectetur adipisicing elit. Suscipit aut unde blanditiis laudantium ullam facere, nulla reiciendis. Voluptatem recusandae facere consequuntur? Ad facilis iure doloribus in minima eius sit magni!</div>
         </div>
-        <div class="comment-container">
-            <div class="upvotes">100</div>
-            <div class="post-top-comment">Lorem ipsum dolor sit amet consectetur adipisicing elit. Suscipit aut unde blanditiis laudantium ullam facere, nulla reiciendis. Voluptatem recusandae facere consequuntur? Ad facilis iure doloribus in minima eius sit magni!</div>
+        <div class="comment-container" v-if='isExpanded' v-for='comment in moreComments'>
+            <div class="upvotes has-text-centered">{{comment.upvotes}}</div>
+            <div class="post-top-comment">{{comment.content}}</div>
         </div>
-    
         <nav class="breadcrumb is-right" aria-label="breadcrumbs">
         <ul>
-            <li><a href="#">Expand Comments</a></li>
+            <li><a @click='isExpanded = !isExpanded'>Expand Comments</a></li>
             <li class="is-active"><a href="#" aria-current="page">View Thread</a></li>
         </ul>
         </nav>
@@ -24,11 +21,34 @@
 
 <script>
 export default {
-
+    data() {
+        return {
+            isExpanded: false,
+            topComment: 'This is the top comment.',
+            moreComments: [           
+                {
+                    content: 'Comment1',
+                    upvotes: '10'
+                },
+                {
+                    content: 'Comment2',
+                    upvotes: '12'
+                }
+            ]
+        }
+    }
 }
 </script>
 
 <style>
+.post-title {
+    padding: 1em;
+}
+.post-content {
+    background-color: rgba(0, 0, 255, 0.05);
+    padding: 1em;
+    font-size: calc(10px + 0.3vw);
+}
 .comment-container {
     display: flex;
     flex-direction: row;
@@ -41,6 +61,7 @@ export default {
     color: green;
     background-color: rgba(0, 128, 0, 0.096);
     margin: 1em;
+    width: 65px;
 
 }
 .breadcrumb {
@@ -63,11 +84,13 @@ hr {
 }
 .post-title {
     font-weight: bold;
-    font-size: 18px;
+    font-size: calc(10px + 0.5vw);
 }
 .post-top-comment {
     padding: 1em;
     background-color: rgba(211, 211, 211, 0.507);
+    font-size: calc(10px + 0.3vw);
+    width: 100%;
 
 }
 </style>
