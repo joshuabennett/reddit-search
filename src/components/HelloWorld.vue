@@ -49,22 +49,22 @@ export default {
             this.searchText[i] == '+';
           }
         }
+        this.searchText += '+reddit';
         var links = fetch(`https://www.googleapis.com/customsearch/v1?q=${this.searchText}&cx=017754768390139241406%3Aed9z5ovbxg1&num=5&key=AIzaSyDQKt9pelyhU5L24ijX2pL3WLIbk1HwCrs`)
             .then( response => response.json().then( data => {
                 var urls = [];
-                console.log(data);
                 for(let i = 0; i < data.items.length; i++) {
                     let container = data.items[i].link;
                     urls[i] = container.slice(container.indexOf('comments') + 9, container.indexOf('comments') + 15);
                 }
                 this.redditLinks = urls;
-                console.log('submit');
                 this.submitted = true;
                 return urls;
             }))
             .catch(function(err) {
                 console.log('Fetch Error :-S', err);
             });
+          this.searchText='';
     }
   }
 }

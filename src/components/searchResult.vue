@@ -2,13 +2,13 @@
 <template>
     <div class="container box is-primary">
         <div class="post-title">{{title}}</div>
-        <div class="post-content">Lorem ipsum dolor sit, amet consectetur adipisicing elit. Nobis inventore magni aspernatur natus expedita culpa qui, exercitationem doloremque nemo optio asperiores sapiente consectetur sunt commodi in delectus velit alias praesentium!</div>
+        <div class="post-content" v-html='postContent'></div>
         <div class="comment-container">
-            <div class="upvotes has-text-centered">100</div>
-            <div class="post-top-comment">Lorem ipsum dolor sit amet consectetur adipisicing elit. Suscipit aut unde blanditiis laudantium ullam facere, nulla reiciendis. Voluptatem recusandae facere consequuntur? Ad facilis iure doloribus in minima eius sit magni!</div>
+            <div class="upvotes has-text-centered">{{upvotes}}</div>
+            <div class="post-top-comment" v-html='topComment'></div>
         </div>
         <div class="comment-container" v-if='isExpanded' v-for='comment in moreComments'>
-            <div class="upvotes has-text-centered">{{comment.upvotes}}</div>
+            <div class="upvotes has-text-centered">{{comment.score}}</div>
             <div class="post-top-comment">{{comment.content}}</div>
         </div>
         <nav class="breadcrumb is-right" aria-label="breadcrumbs">
@@ -38,25 +38,29 @@ export default {
             title: '',
             postContent: '',
             topComment: 'This is the top comment.',
-            moreComments: []
+            moreComments: [],
+            upvotes: ''
         }
     },
     props: ['searchText'],
     methods: {},
-            //     console.log(data);
-            // });
-            // r.getSubmission('4j8p6d').expandReplies({limit: 1, depth: 1}).then(data => {
-            //     console.log(data);
-            // });
     created() {
-            console.log(this.title);
-            //console.log(r.getSubmission(this.searchText));
+            console.log(r.getSubmission(this.searchText));
             r.getSubmission(this.searchText).title.then(data => {
                 this.title = data;
             });
+            r.getSubmission(this.searchText).selftext_html.then(data => {
+                this.postContent = data;
+            });
+            r.getSubmission(this.searchText).score.then(data => {
+                this.upvotes = data;
+            });
             //   
-            r.getSubmission(this.searchText).expandReplies({limit: 1, depth: 1}).then(data => {
+            r.getSubmission(this.searchText).expandReplies({limit: 5, depth: 0}).then(data => {
                 console.log(data);
+                this.topComment = data.comments[0].body_html; 
+                this.moreComments = data.comments
+                this.moreComments = this.moreComments.shift();;
             });
     }
 }
