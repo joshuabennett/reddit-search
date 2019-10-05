@@ -1,15 +1,19 @@
+
 <template>
   <div class='home'>
     <div class="title is-size-3 has-text-centered">Reddit Search</div>
-    <div class="control searchbar has-icons-right">
-      <input class="input is-small" type="email" placeholder="Search Reddit">
-      <span class="icon is-small is-right">
-        <i class="fas fa-search"></i>
-      </span>
+    <div class="field searchbar has-addons">
+      <div class="control is-expanded">
+        <input class="input" type="text" placeholder="Search Reddit" v-model='searchText'>
+      </div>
+      <div class="control">
+        <a class="button" @click='searchViaGoogle'>
+          Search
+        </a>
+      </div>
     </div>
-    <search-result></search-result>
-    <search-result></search-result>
-    <search-result></search-result>
+    <p> {{redditLinks}} </p>
+    <search-result v-if='submitted' v-for='link in redditLinks' :searchText='link'></search-result>
     <footer class="footer">
       <div class="content has-text-centered">
         <p>
@@ -29,11 +33,39 @@ export default {
   name: 'HelloWorld',
   data () {
     return {
-      msg: 'Welcome to Your Vue.js App'
+      msg: 'Welcome to Your Vue.js App',
+      searchText: '',
+      submitted: false,
+      redditLinks: []
     }
   },
   components: {
     'search-result': searchResult
+  },
+  methods: {
+    searchViaGoogle() {
+        for (let i = 0; i < this.searchText.length; i++ ) {
+          if(this.searchText[i] == ' ') {
+            this.searchText[i] == '+';
+          }
+        }
+        var links = fetch(`https://www.googleapis.com/customsearch/v1?q=${this.searchText}&cx=017754768390139241406%3Aed9z5ovbxg1&num=5&key=AIzaSyDQKt9pelyhU5L24ijX2pL3WLIbk1HwCrs`)
+            .then( response => response.json().then( data => {
+                var urls = [];
+                console.log(data);
+                for(let i = 0; i < data.items.length; i++) {
+                    let container = data.items[i].link;
+                    urls[i] = container.slice(container.indexOf('comments') + 9, container.indexOf('comments') + 15);
+                }
+                this.redditLinks = urls;
+                console.log('submit');
+                this.submitted = true;
+                return urls;
+            }))
+            .catch(function(err) {
+                console.log('Fetch Error :-S', err);
+            });
+    }
   }
 }
 
@@ -42,7 +74,7 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 .searchbar {
-  width: calc(200px + 25vw);
+  width: 600px;
   margin: 0 auto;
   margin-bottom: 2em;
 }

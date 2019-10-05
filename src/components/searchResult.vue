@@ -1,6 +1,7 @@
+/* eslint-disable */
 <template>
     <div class="container box is-primary">
-        <div class="post-title">Reddit Post Title</div>
+        <div class="post-title">{{title}}</div>
         <div class="post-content">Lorem ipsum dolor sit, amet consectetur adipisicing elit. Nobis inventore magni aspernatur natus expedita culpa qui, exercitationem doloremque nemo optio asperiores sapiente consectetur sunt commodi in delectus velit alias praesentium!</div>
         <div class="comment-container">
             <div class="upvotes has-text-centered">100</div>
@@ -13,32 +14,54 @@
         <nav class="breadcrumb is-right" aria-label="breadcrumbs">
         <ul>
             <li><a @click='isExpanded = !isExpanded'>Expand Comments</a></li>
-            <li class="is-active"><a href="#" aria-current="page">View Thread</a></li>
+            <li ><a aria-current="page">View Thread</a></li>
         </ul>
         </nav>
     </div>
 </template>
 
 <script>
+//import snoowrap from '../../node_modules/snoowrap'
+var snoowrap = require('snoowrap');
+
+const r = new snoowrap({
+  userAgent: 'RedditSearch by /u/EarthsVisitor',
+  clientId: 'tkeURvFf2gpnwQ',
+  clientSecret: 'RugvbmBgfWtolavy1CZTqi02fJY',
+  refreshToken: '370426875071-LSGyKySnbjacfzSIjWYkvk-M_Vk'
+});
+
 export default {
-    data() {
+    data () {
         return {
             isExpanded: false,
+            title: '',
+            postContent: '',
             topComment: 'This is the top comment.',
-            moreComments: [           
-                {
-                    content: 'Comment1',
-                    upvotes: '10'
-                },
-                {
-                    content: 'Comment2',
-                    upvotes: '12'
-                }
-            ]
+            moreComments: []
         }
+    },
+    props: ['searchText'],
+    methods: {},
+            //     console.log(data);
+            // });
+            // r.getSubmission('4j8p6d').expandReplies({limit: 1, depth: 1}).then(data => {
+            //     console.log(data);
+            // });
+    created() {
+            console.log(this.title);
+            //console.log(r.getSubmission(this.searchText));
+            r.getSubmission(this.searchText).title.then(data => {
+                this.title = data;
+            });
+            //   
+            r.getSubmission(this.searchText).expandReplies({limit: 1, depth: 1}).then(data => {
+                console.log(data);
+            });
     }
 }
 </script>
+
 
 <style>
 .post-title {
