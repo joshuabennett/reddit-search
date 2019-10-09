@@ -4,7 +4,7 @@
     <div class="title is-size-3 has-text-centered">Reddit Search</div>
     <div class="field searchbar has-addons">
       <div class="control is-expanded">
-        <input class="input" type="text" placeholder="Search Reddit" v-model='searchText'>
+        <input class="input" type="text" placeholder="Search Reddit" v-model='searchText' @keyup.enter='searchViaGoogle'>
       </div>
       <div class="control">
         <a class="button" @click='searchViaGoogle'>
@@ -12,8 +12,7 @@
         </a>
       </div>
     </div>
-    <p> {{redditLinks}} </p>
-    <search-result v-if='submitted' v-for='link in redditLinks' :searchText='link'></search-result>
+    <search-result v-if='submitted' v-for='(link, index) in redditLinks' :searchText='link' :link='fullUrls[index]'></search-result>
     <footer class="footer">
       <div class="content has-text-centered">
         <p>
@@ -36,7 +35,8 @@ export default {
       msg: 'Welcome to Your Vue.js App',
       searchText: '',
       submitted: false,
-      redditLinks: []
+      redditLinks: [],
+      fullUrls: []
     }
   },
   components: {
@@ -44,6 +44,9 @@ export default {
   },
   methods: {
     searchViaGoogle() {
+        if (this.submitted) {
+          this.submitted = false;
+        }
         for (let i = 0; i < this.searchText.length; i++ ) {
           if(this.searchText[i] == ' ') {
             this.searchText[i] == '+';
@@ -55,7 +58,10 @@ export default {
                 var urls = [];
                 for(let i = 0; i < data.items.length; i++) {
                     let container = data.items[i].link;
-                    urls[i] = container.slice(container.indexOf('comments') + 9, container.indexOf('comments') + 15);
+                    this.fullUrls[i] = container;
+                    if (container.indexOf('comments') >= 0) {
+                      urls.push(container.slice(container.indexOf('comments') + 9, container.indexOf('comments') + 15));
+                    }
                 }
                 this.redditLinks = urls;
                 this.submitted = true;
@@ -74,7 +80,7 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 .searchbar {
-  width: 600px;
+  width: calc(200px + 25vw);
   margin: 0 auto;
   margin-bottom: 2em;
 }

@@ -1,20 +1,46 @@
 /* eslint-disable */
 <template>
-    <div class="container box is-primary">
+    <div class="container box is-primary" >
+        <a :name='firstCommentData.created'></a>
         <div class="post-title">{{title}}</div>
-        <div class="post-content" v-html='postContent'></div>
+        <div class="image-container" v-if='hasImg'>
+            <img :src='image'>
+        </div>
+        <div class="post-content" v-html='postContent' v-if='postContent'></div>
         <div class="comment-container">
             <div class="upvotes has-text-centered">{{upvotes}}</div>
             <div class="post-top-comment" v-html='topComment'></div>
         </div>
-        <div class="comment-container" v-if='isExpanded' v-for='comment in moreComments'>
-            <div class="upvotes has-text-centered">{{comment.score}}</div>
-            <div class="post-top-comment">{{comment.content}}</div>
+        <div class="reply" v-for='reply in firstCommentData.replies'>
+            <div class="reply-score has-text-centered" :class='getColor(reply.score)'>{{reply.score}}</div>
+            <div class="reply-text">
+                <p>{{reply.body}}</p>
+                <p style='text-align: right; font-size: 12px;'>{{'/u/'+reply.author.name}}</p>
+            </div>
         </div>
+            <transition name='expand'>
+                <div class="expand-wrapper" v-if='isExpanded'>
+                    <div class="individual-comment" v-for='comment in moreComments'>
+                        <div class="comment-container">
+                            <div class="upvotes has-text-centered">{{comment.score}}</div>
+                            <div class="post-top-comment">{{comment.body}}
+                                <p style='text-align: right; font-size: 12px;'>{{'/u/'+comment.author.name}}</p>
+                            </div>
+                        </div>
+                        <div class="reply" v-for='reply in comment.replies'>
+                            <div class="reply-score has-text-centered" :class='getColor(reply.score)'>{{reply.score}}</div>
+                            <div class="reply-text">
+                                <p>{{reply.body}}</p>
+                                <p style='text-align: right; font-size: 12px;'>{{'/u/'+reply.author.name}}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </transition>
         <nav class="breadcrumb is-right" aria-label="breadcrumbs">
         <ul>
-            <li><a @click='isExpanded = !isExpanded'>Expand Comments</a></li>
-            <li ><a aria-current="page">View Thread</a></li>
+            <li><a @click='toggleComments()' :href='backToComment()'>{{expandText}}</a></li>
+            <li ><a :href='link' aria-current="page">View Thread</a></li>
         </ul>
         </nav>
     </div>
@@ -34,18 +60,45 @@ const r = new snoowrap({
 export default {
     data () {
         return {
+            hasImg: false,
+            image: '',
             isExpanded: false,
             title: '',
             postContent: '',
+            firstCommentData: {},
             topComment: 'This is the top comment.',
             moreComments: [],
-            upvotes: ''
+            upvotes: '',
+            expandText: 'More Comments'
         }
     },
-    props: ['searchText'],
-    methods: {},
+    props: ['searchText', 'link'],
+    methods: {
+        getColor(score) {
+            return score >= 0 ? 'upvotes' : 'downvotes';
+        },
+        backToComment(comment) {
+            if (!this.isExpanded) {
+                console.log(this.firstCommentData);
+                return `#${this.firstCommentData.created}`;
+            } else {
+                return false;
+            }
+        },
+        toggleComments() {
+            this.isExpanded = !this.isExpanded;
+            this.expandText == 'More Comments' ? 'Less Comments' : 'More Comments';
+        }
+    },
     created() {
             console.log(r.getSubmission(this.searchText));
+            r.getSubmission(this.searchText).preview.images[0].source.url.then(data => {
+                if (data) {
+                    console.log(data);
+                    this.hasImg = true;
+                    this.image = data;
+                }
+            });
             r.getSubmission(this.searchText).title.then(data => {
                 this.title = data;
             });
@@ -56,15 +109,16 @@ export default {
                 this.upvotes = data;
             });
             //   
-            r.getSubmission(this.searchText).expandReplies({limit: 5, depth: 0}).then(data => {
+            r.getSubmission(this.searchText).expandReplies({limit: 5, depth: 1}).then(data => {
                 console.log(data);
+                this.firstCommentData = data.comments[0];
                 this.topComment = data.comments[0].body_html; 
-                this.moreComments = data.comments
-                this.moreComments = this.moreComments.shift();;
+                this.moreComments = data.comments.slice(1, 6);
             });
     }
 }
 </script>
+
 
 
 <style>
@@ -82,14 +136,27 @@ export default {
     margin-top: 2vh;
     justify-content: center;
     align-items: center;
+    margin-bottom: 1vh;
 }
 .upvotes {
     padding: 1em;
     color: green;
     background-color: rgba(0, 128, 0, 0.096);
     margin: 1em;
-    width: 65px;
+    width: 60px;
 
+}
+.downvotes {
+    padding: 1em;
+    color: red;
+    background-color: rgba(192, 6, 6, 0.096);
+    margin: 1em;
+    width: 60px;
+}
+.reply-score {
+    width: 45px;
+    padding: 0.5em;
+    margin: 0.5em;
 }
 .breadcrumb {
     margin: 1em;
@@ -99,6 +166,7 @@ export default {
     width: 90vw;
     border: 1px dotted rgba(0, 0, 0, 0.151);
     box-shadow: 0px 4px 8px rgba(128, 128, 128, 0.589);
+    transition: height 1.0s linear;
 }
 hr {
     margin: 0;
@@ -119,5 +187,36 @@ hr {
     font-size: calc(10px + 0.3vw);
     width: 100%;
 
+}
+.individual-comment {
+    display: flex;
+    flex-direction: column;
+}
+.reply {
+    display: flex;
+    flex-direction: row;
+    margin-left: 12%;
+    align-items: center;
+}
+.reply-text {
+    background-color: rgba(0, 0, 255, 0.05);
+    padding: 1em;
+    margin: 0.3em;
+    font-size: calc(10px + 0.3vw);
+    width: 100%;
+}
+.expand-enter-active {
+  transition: all .3s ease;
+  max-height: 5000px;
+}
+.expand-leave-active {
+  transition: all .3s ease;
+  max-height: 5000px;
+}
+.expand-enter, .expand-leave-to
+/* .slide-fade-leave-active below version 2.1.8 */ {
+  transform: translateX(10px);
+  opacity: 0;
+  max-height: 0;
 }
 </style>
