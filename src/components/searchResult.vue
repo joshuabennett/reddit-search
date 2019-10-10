@@ -1,7 +1,7 @@
 /* eslint-disable */
 <template>
     <div class="container box is-primary" >
-        <a :name='firstCommentData.created'></a>
+        <!-- <a :name='firstCommentData.created'></a> -->
         <div class="post-title">{{title}}</div>
         <div class="image-container" v-if='hasImg'>
             <img class='img-thumb' :src='image'>
@@ -12,16 +12,16 @@
             <div class="upvotes has-text-centered">{{upvotes}}</div>
             <div class="post-top-comment" v-html='topComment'></div>
         </div>
-        <div class="reply" v-for='reply in firstCommentData.replies'>
+        <div class="reply" v-for='reply in moreComments[0].replies'>
             <div class="reply-score has-text-centered" :class='getColor(reply.score)'>{{reply.score}}</div>
             <div class="reply-text">
                 <p>{{reply.body}}</p>
-                <p style='text-align: right; font-size: 12px;'>{{'/u/'+reply.author.name}}</p>
+                <p style='text-align: right; font-size: 12px;'>{{'/u/'+''}}</p>
             </div>
         </div>
             <transition name='expand'>
                 <div class="expand-wrapper" v-if='isExpanded'>
-                    <div class="individual-comment" v-for='comment in moreComments'>
+                    <div class="individual-comment" v-for='(comment,index) in moreComments' v-if='index > 0'>
                         <div class="comment-container">
                             <div class="upvotes has-text-centered">{{comment.score}}</div>
                             <div class="post-top-comment">{{comment.body}}
@@ -40,7 +40,7 @@
             </transition>
         <nav class="breadcrumb is-right" aria-label="breadcrumbs">
         <ul>
-            <li><a @click='toggleComments()' :href='backToComment()'>{{expandText}}</a></li>
+            <li><a v-if='moreComments.length > 0' @click='toggleComments()' :href='backToComment()'>{{expandText}}</a></li>
             <li ><a :href='link' aria-current="page">View Thread</a></li>
         </ul>
         </nav>
@@ -67,7 +67,7 @@ export default {
             title: '',
             postContent: '',
             firstCommentData: {},
-            topComment: 'This is the top comment.',
+            topComment: 'Unable to load Top Comment',
             moreComments: [],
             upvotes: '',
             expandText: 'More Comments'
@@ -79,11 +79,11 @@ export default {
             return score >= 0 ? 'upvotes' : 'downvotes';
         },
         backToComment(comment) {
-            if (!this.isExpanded) {
-                return `#${this.firstCommentData.created}`;
-            } else {
-                return false;
-            }
+            // if (!this.isExpanded) {
+            //     return `#${this.firstCommentData.created}`;
+            // } else {
+            //     return false;
+            // }
         },
         toggleComments() {
             this.isExpanded = !this.isExpanded;
@@ -95,7 +95,7 @@ export default {
         }
     },
     created() {
-            console.log(r.getSubmission(this.searchText));
+            //console.log(r.getSubmission(this.searchText));
             r.getSubmission(this.searchText).preview.images[0].source.url.then(data => {
                 if (data) {
                     this.hasImg = true;
@@ -112,11 +112,13 @@ export default {
                 this.upvotes = data;
             });
             //   
-            r.getSubmission(this.searchText).expandReplies({limit: 5, depth: 1}).then(data => {
+            r.getSubmission(this.searchText).comments.then(data => {
                 console.log(data);
-                this.firstCommentData = data.comments[0];
-                this.topComment = data.comments[0].body_html; 
-                this.moreComments = data.comments.slice(1, 6);
+                //this.firstCommentData = data[0];
+                this.topComment = data[0].body_html; 
+                this.moreComments = data.slice(0, 6);
+            }).catch(error => {
+                console.log(error);
             });
     }
 }
