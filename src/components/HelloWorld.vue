@@ -58,9 +58,10 @@ export default {
                 var urls = [];
                 for(let i = 0; i < data.items.length; i++) {
                     let container = data.items[i].link;
-                    this.fullUrls[i] = container;
+                    //this.fullUrls[i] = container;
                     if (container.indexOf('comments') >= 0) {
                       urls.push(container.slice(container.indexOf('comments') + 9, container.indexOf('comments') + 15));
+                      this.fullUrls.push(container);
                     }
                 }
                 this.redditLinks = urls;

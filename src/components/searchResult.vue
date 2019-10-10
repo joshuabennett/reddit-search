@@ -4,7 +4,8 @@
         <a :name='firstCommentData.created'></a>
         <div class="post-title">{{title}}</div>
         <div class="image-container" v-if='hasImg'>
-            <img :src='image'>
+            <img class='img-thumb' :src='image'>
+            <button @click="expandImg()" class="button expand-img">Expand Image</button>
         </div>
         <div class="post-content" v-html='postContent' v-if='postContent'></div>
         <div class="comment-container">
@@ -79,7 +80,6 @@ export default {
         },
         backToComment(comment) {
             if (!this.isExpanded) {
-                console.log(this.firstCommentData);
                 return `#${this.firstCommentData.created}`;
             } else {
                 return false;
@@ -88,13 +88,16 @@ export default {
         toggleComments() {
             this.isExpanded = !this.isExpanded;
             this.expandText == 'More Comments' ? 'Less Comments' : 'More Comments';
+        },
+        expandImg() {
+            var imageClass = document.querySelector('img');
+            imageClass.classList.contains('img-thumb') ? imageClass.className = 'img-full' : imageClass.className = 'img-thumb';
         }
     },
     created() {
             console.log(r.getSubmission(this.searchText));
             r.getSubmission(this.searchText).preview.images[0].source.url.then(data => {
                 if (data) {
-                    console.log(data);
                     this.hasImg = true;
                     this.image = data;
                 }
@@ -122,6 +125,27 @@ export default {
 
 
 <style>
+.image-container {
+    position: relative;
+}
+.expand-img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    opacity: 0;
+    transition: .5s ease;
+}
+.image-container:hover .expand-img {
+    opacity: 1;
+}
+
+.img-full {
+    max-height: 80vh;
+}
+.img-thumb {
+    max-height: 25vh;
+    max-width: 25vh;
+}
 .post-title {
     padding: 1em;
 }
