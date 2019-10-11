@@ -12,6 +12,7 @@
         </a>
       </div>
     </div>
+    <div class="cur-search container box" v-if='finalText'><p><span style='font-weight: bold;'>Current Search: </span><i>{{finalText}}</i></p></div>
     <transition-group name='fade'>
       <search-result v-if='submitted' v-for='(link, index) in redditLinks' :searchText='link' :link='fullUrls[index]' :key='index'></search-result>
     </transition-group>
@@ -36,6 +37,7 @@ export default {
     return {
       msg: 'Welcome to Your Vue.js App',
       searchText: '',
+      finalText: '',
       submitted: false,
       redditLinks: [],
       fullUrls: []
@@ -54,6 +56,7 @@ export default {
             this.searchText[i] == '+';
           }
         }
+        this.finalText = this.searchText;
         this.searchText += '+reddit';
         var links = fetch(`https://www.googleapis.com/customsearch/v1?q=${this.searchText}&cx=017754768390139241406%3Aed9z5ovbxg1&num=5&key=AIzaSyDQKt9pelyhU5L24ijX2pL3WLIbk1HwCrs`)
             .then( response => response.json().then( data => {
@@ -83,6 +86,12 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
+.cur-search {
+  padding: 0.6em;
+  background: transparent;
+  box-shadow: none;
+  margin-bottom: 0px;
+}
 .searchbar {
   width: calc(200px + 25vw);
   margin: 0 auto;

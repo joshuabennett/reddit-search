@@ -1,6 +1,6 @@
 /* eslint-disable */
 <template>
-    <div class="container box is-primary" >
+    <div class="container full-container box is-primary" >
         <!-- <a :name='firstCommentData.created'></a> -->
         <div class="post-title">{{title}}</div>
         <div class="image-container" v-if='hasImg'>
@@ -154,9 +154,10 @@ export default {
     padding: 1em;
 }
 .post-content {
-    background-color: rgba(0, 0, 255, 0.05);
+    background-color: rgba(182, 182, 184, 0.651);
     padding: 1em;
     font-size: calc(10px + 0.3vw);
+    border-radius: 10px;
 }
 .comment-container {
     display: flex;
@@ -189,7 +190,7 @@ export default {
 .breadcrumb {
     margin: 1em;
 }
-.container {
+.full-container {
     min-height: 20vh;
     width: 90vw;
     border: 1px dotted rgba(0, 0, 0, 0.151);
