@@ -12,7 +12,9 @@
         </a>
       </div>
     </div>
-    <search-result v-if='submitted' v-for='(link, index) in redditLinks' :searchText='link' :link='fullUrls[index]'></search-result>
+    <transition-group name='fade'>
+      <search-result v-if='submitted' v-for='(link, index) in redditLinks' :searchText='link' :link='fullUrls[index]' :key='index'></search-result>
+    </transition-group>
     <footer class="footer">
       <div class="content has-text-centered">
         <p>
@@ -56,6 +58,7 @@ export default {
         var links = fetch(`https://www.googleapis.com/customsearch/v1?q=${this.searchText}&cx=017754768390139241406%3Aed9z5ovbxg1&num=5&key=AIzaSyDQKt9pelyhU5L24ijX2pL3WLIbk1HwCrs`)
             .then( response => response.json().then( data => {
                 var urls = [];
+                this.fullUrls = [];
                 for(let i = 0; i < data.items.length; i++) {
                     let container = data.items[i].link;
                     //this.fullUrls[i] = container;
@@ -101,5 +104,13 @@ a {
 }
 .footer {
   margin-top: 10vh;
+}
+.fade-leave-active, .fade-enter-active{
+  transition: all 1s ease;
+}
+.fade-enter, .fade-leave-to
+/* .slide-fade-leave-active below version 2.1.8 */ {
+  transform: translateX(10px);
+  opacity: 0;
 }
 </style>

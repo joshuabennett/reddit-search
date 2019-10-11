@@ -16,7 +16,7 @@
             <div class="reply-score has-text-centered" :class='getColor(reply.score)'>{{reply.score}}</div>
             <div class="reply-text">
                 <p>{{reply.body}}</p>
-                <p style='text-align: right; font-size: 12px;'>{{'/u/'+''}}</p>
+                <p style='text-align: right; font-size: 12px;'>{{'/u/'+reply.author.name}}</p>
             </div>
         </div>
             <transition name='expand'>
@@ -115,8 +115,10 @@ export default {
             r.getSubmission(this.searchText).comments.then(data => {
                 console.log(data);
                 //this.firstCommentData = data[0];
-                this.topComment = data[0].body_html; 
-                this.moreComments = data.slice(0, 6);
+                if (data) {
+                    this.topComment = data[0].body_html; 
+                    this.moreComments = data.slice(0, 6);
+                }
             }).catch(error => {
                 console.log(error);
             });
